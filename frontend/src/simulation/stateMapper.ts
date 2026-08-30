@@ -1,0 +1,88 @@
+import { SimulationState, VisualParams } from '../types';
+
+export const STATE_CONFIGS: Record<SimulationState, VisualParams> = {
+  disconnected: {
+    color: '#6B7280',
+    sand_speed: 2.2,
+    particle_density: 0.6,
+    glow_intensity: 0.2,
+    pause_probability: 0.0,
+    reverse_gravity: false,
+    ambient_energy: 0.3,
+    display_name: 'Disconnected',
+  },
+  neutral: {
+    color: '#86EFAC',
+    sand_speed: 1.0,
+    particle_density: 0.8,
+    glow_intensity: 0.4,
+    pause_probability: 0.02,
+    reverse_gravity: false,
+    ambient_energy: 0.5,
+    display_name: 'Neutral',
+  },
+  engaged: {
+    color: '#10B981',
+    sand_speed: 0.6,
+    particle_density: 1.0,
+    glow_intensity: 0.7,
+    pause_probability: 0.08,
+    reverse_gravity: false,
+    ambient_energy: 0.7,
+    display_name: 'Engaged',
+  },
+  meaningful: {
+    color: '#F59E0B',
+    sand_speed: 0.25,
+    particle_density: 1.2,
+    glow_intensity: 0.9,
+    pause_probability: 0.25,
+    reverse_gravity: false,
+    ambient_energy: 0.85,
+    display_name: 'Meaningful',
+  },
+  deep_moment: {
+    color: '#FBBF24',
+    sand_speed: 0.05,
+    particle_density: 1.4,
+    glow_intensity: 1.0,
+    pause_probability: 0.70,
+    reverse_gravity: true,
+    ambient_energy: 1.0,
+    display_name: 'Deep Moment',
+  },
+  emotionally_intense: {
+    color: '#EF4444',
+    sand_speed: 1.5,
+    particle_density: 1.1,
+    glow_intensity: 0.85,
+    pause_probability: 0.05,
+    reverse_gravity: false,
+    ambient_energy: 0.95,
+    display_name: 'Emotionally Intense',
+  },
+  low_confidence: {
+    color: '#94A3B8',
+    sand_speed: 1.0,
+    particle_density: 0.75,
+    glow_intensity: 0.35,
+    pause_probability: 0.0,
+    reverse_gravity: false,
+    ambient_energy: 0.4,
+    display_name: 'Ambient Resting',
+  },
+  insufficient_data: {
+    color: '#94A3B8',
+    sand_speed: 1.0,
+    particle_density: 0.7,
+    glow_intensity: 0.3,
+    pause_probability: 0.0,
+    reverse_gravity: false,
+    ambient_energy: 0.3,
+    display_name: 'Awaiting Data',
+  },
+};
+
+export function getVisualParamsForState(state: SimulationState): VisualParams {
+  return STATE_CONFIGS[state] || STATE_CONFIGS.neutral;
+}
