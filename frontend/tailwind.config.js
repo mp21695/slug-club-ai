@@ -7,35 +7,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        slytherin: {
-          darkest: '#040906',
-          dungeon: '#08120C',
-          panel: '#0D1C13',
-          border: 'rgba(16, 185, 129, 0.2)',
-          emerald: '#10B981',
-          emeraldDark: '#059669',
-          emeraldDeep: '#02401B',
-          silver: '#C8D1CC',
-          silverLight: '#E8ECE9',
-          silverMuted: '#84938A',
-          gold: '#D4AF37',
-          goldWarm: '#F59E0B',
-          ruby: '#EF4444'
+        pixel: {
+          void: '#050709',
+          charcoal: '#0E1216',
+          slate: '#171D22',
+          border: '#2A343C',
+          borderLight: '#435360',
+          textMuted: '#708390',
+          textMain: '#D0D7DA',
+          textBright: '#F0F4F6',
+          gold: '#E5B869',
+          goldBright: '#F3C77C',
+          goldGlow: '#FFE082',
+          emerald: '#2E8B57',
+          emeraldBright: '#34D399',
+          emeraldDark: '#133E27',
+          amber: '#D97706',
+          ruby: '#E63946',
+          silver: '#9EADB2'
         }
       },
       fontFamily: {
-        serif: ['Cinzel', 'serif'],
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
+        pixel: ['"Silkscreen"', 'monospace'],
+        pixelHeading: ['"Press Start 2P"', 'monospace'],
+        mono: ['"Space Mono"', 'monospace', 'Courier New'],
       },
-      animation: {
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
-      },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-6px)' },
-        }
+      boxShadow: {
+        'pixel-sm': '2px 2px 0px #000000',
+        'pixel-md': '3px 3px 0px #000000',
+        'pixel-lg': '4px 4px 0px #000000',
+        'pixel-gold': '3px 3px 0px #A0782C',
+        'pixel-emerald': '3px 3px 0px #133E27',
       }
     },
   },

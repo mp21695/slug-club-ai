@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { HourglassCanvas } from '../simulation/HourglassCanvas';
 import { EvaluationResult, SimulationState } from '../types';
 import { STATE_CONFIGS } from '../simulation/stateMapper';
-import { Mic, MicOff, Sparkles, ShieldCheck, HeartHandshake, Volume2 } from 'lucide-react';
+import { Mic, MicOff, Sparkles, HeartHandshake, Terminal, Volume2 } from 'lucide-react';
 
 interface MainLiveWidgetProps {
   currentEvaluation: EvaluationResult | null;
@@ -22,7 +22,6 @@ export const MainLiveWidget: React.FC<MainLiveWidgetProps> = ({
   const [isListening, setIsListening] = useState<boolean>(false);
   const [liveTranscript, setLiveTranscript] = useState<string>('');
   const [audioLevel, setAudioLevel] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -47,7 +46,6 @@ export const MainLiveWidget: React.FC<MainLiveWidgetProps> = ({
   }, []);
 
   const startListening = async () => {
-    setErrorMessage('');
     try {
       const newSessionId = await onResetSession();
       currentSessionIdRef.current = newSessionId;
@@ -90,9 +88,7 @@ export const MainLiveWidget: React.FC<MainLiveWidgetProps> = ({
               const evalResult: EvaluationResult = await res.json();
               onEvaluationChange(evalResult);
             }
-          } catch (err) {
-            console.error('Audio chunk error:', err);
-          }
+          } catch (err) {}
         }
       };
 
@@ -126,19 +122,13 @@ export const MainLiveWidget: React.FC<MainLiveWidgetProps> = ({
                     onEvaluationChange(evalResult);
                   }
                   activeSpeaker = activeSpeaker === 'Speaker_A' ? 'Speaker_B' : 'Speaker_A';
-                } catch (err) {
-                  console.error('Text turn error:', err);
-                }
+                } catch (err) {}
               }
             }
           }
           if (!event.results[event.results.length - 1].isFinal) {
             setLiveTranscript(currentChunk);
           }
-        };
-
-        recognition.onerror = (e: any) => {
-          console.warn('Speech recognition warning:', e.error);
         };
 
         recognition.onend = () => {
@@ -154,9 +144,8 @@ export const MainLiveWidget: React.FC<MainLiveWidgetProps> = ({
       }
 
       setIsListening(true);
-    } catch (err: any) {
-      console.error('Failed to start listening:', err);
-      setErrorMessage('Microphone access is required. Please grant permission to listen.');
+    } catch (err) {
+      alert('Microphone permission required for conversational sensing.');
     }
   };
 
@@ -190,135 +179,143 @@ export const MainLiveWidget: React.FC<MainLiveWidgetProps> = ({
     }
   };
 
+  // Generate ASCII segmented pixel meter string
+  const renderPixelMeter = (val: number, maxBlocks: number = 10) => {
+    const filled = Math.round(val * maxBlocks);
+    return '■'.repeat(filled) + '□'.repeat(maxBlocks - filled);
+  };
+
   return (
-    <div className="w-full max-w-xl mx-auto flex flex-col items-center justify-center space-y-6 py-2 animate-fade-in">
-      {/* Main Slytherin Glass Widget Card */}
-      <div
-        style={{ '--glow-color': visualParams.color } as React.CSSProperties}
-        className="glass-widget w-full rounded-3xl p-8 flex flex-col items-center relative border border-emerald-500/20 shadow-2xl transition-all duration-700 hover:border-emerald-500/35"
-      >
-        {/* Top Status Header */}
-        <div className="w-full flex items-center justify-between">
-          <div className="flex items-center gap-2">
+    <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-center space-y-5 animate-fade-in font-mono">
+      {/* Mystical Pixel-Art Artifact Terminal */}
+      <div className="pixel-panel w-full p-6 sm:p-8 flex flex-col items-center relative">
+        {/* Terminal Header Bar */}
+        <div className="w-full flex items-center justify-between pb-3 mb-2 border-b-2 border-pixel-border">
+          <div className="flex items-center gap-2.5">
             <span
-              className="w-3 h-3 rounded-full animate-pulse shadow-md"
+              className="w-3 h-3 shadow-pixel-sm"
               style={{ backgroundColor: visualParams.color }}
             />
-            <span className="text-xs font-bold uppercase tracking-wider text-slytherin-silverLight font-serif">
+            <span className="font-pixel text-xs text-pixel-gold tracking-widest uppercase">
               {visualParams.display_name}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {isListening && (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-[11px] font-semibold text-emerald-300 animate-pulse">
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Listening Live</span>
-              </div>
+              <span className="font-pixel text-[10px] text-pixel-emeraldBright animate-pulse flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-pixel-emeraldBright inline-block" />
+                <span>REC_STREAM</span>
+              </span>
             )}
             <button
               onClick={onOpenFeedback}
-              title="Reflect on Session"
-              className="p-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-slytherin-gold border border-emerald-500/30 transition-colors shadow-sm"
+              title="Reflect & Calibrate Session"
+              className="pixel-btn px-2.5 py-1 text-xs text-pixel-gold flex items-center gap-1.5"
             >
-              <HeartHandshake className="w-4 h-4" />
+              <HeartHandshake className="w-3.5 h-3.5" />
+              <span className="font-pixel text-[10px]">CALIBRATE</span>
             </button>
           </div>
         </div>
 
-        {/* Large Central Animated Canvas */}
-        <div className="my-3 py-2 flex items-center justify-center">
+        {/* DOMINANT PIXEL HOURGLASS ARTIFACT */}
+        <div className="my-3 py-2 flex flex-col items-center justify-center">
           <HourglassCanvas
             state={state}
             visualParams={visualParams}
             score={smoothedScore}
-            width={260}
-            height={370}
+            width={220}
+            height={310}
+            interactive={true}
           />
         </div>
 
-        {/* Atmospheric Explanation */}
-        <div className="w-full text-center px-4 min-h-[44px] flex items-center justify-center">
-          <p className="text-sm text-slytherin-silverLight italic font-light leading-relaxed">
-            "{currentEvaluation?.explanation || 'A living digital hourglass that slows down when conversation feels meaningful.'}"
+        {/* Retro Atmospheric Monospace Telemetry Log */}
+        <div className="w-full text-center px-4 min-h-[38px] flex items-center justify-center border-y-2 border-pixel-border py-2 bg-pixel-void/80">
+          <p className="text-xs text-pixel-textMain italic leading-relaxed">
+            "{currentEvaluation?.explanation || 'Ambient hourglass is observing conversation quality...'}"
           </p>
         </div>
 
-        {/* Live Audio & Transcript Indicator */}
+        {/* Live Audio Segmented LED Meter */}
         {isListening && (
-          <div className="w-full mt-3 p-3 rounded-2xl bg-black/60 border border-emerald-500/20 space-y-2 animate-fade-in">
-            <div className="flex items-center justify-between text-[11px] text-slytherin-silver">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>Microphone Active</span>
+          <div className="w-full mt-3 p-3 bg-pixel-void border-2 border-pixel-border space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] text-pixel-textMuted font-mono">
+              <span className="flex items-center gap-1.5 text-pixel-emeraldBright">
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>MIC RESONANCE</span>
               </span>
-              <span className="font-mono text-emerald-400">{audioLevel}% Resonance</span>
+              <span className="font-pixel text-[10px] text-pixel-gold">
+                {audioLevel}%
+              </span>
             </div>
 
-            <div className="w-full h-1 bg-emerald-950 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-400 transition-all duration-100"
-                style={{ width: `${audioLevel}%` }}
-              />
+            {/* Segmented Pixel Bar */}
+            <div className="text-xs font-mono text-pixel-emeraldBright tracking-wider">
+              [ {renderPixelMeter(audioLevel / 100, 24)} ]
             </div>
 
             {liveTranscript && (
-              <p className="text-xs text-slytherin-silverLight italic truncate text-center">
-                “{liveTranscript}”
+              <p className="text-xs text-pixel-textMain italic truncate text-center pt-1 border-t border-pixel-border">
+                &gt; "{liveTranscript}"
               </p>
             )}
           </div>
         )}
 
-        {/* Key Metrics Pill */}
-        <div className="w-full grid grid-cols-2 gap-3 my-4 p-3 rounded-2xl bg-black/50 border border-emerald-500/15">
-          <div className="flex flex-col items-center justify-center border-r border-emerald-500/15">
-            <span className="text-[10px] uppercase font-bold text-slytherin-silver tracking-wider">Time Slowing</span>
-            <span className="text-xl font-bold font-mono" style={{ color: visualParams.color }}>
+        {/* Pixel Metrics Telemetry Grid */}
+        <div className="w-full grid grid-cols-2 gap-3 my-4 p-3 bg-pixel-void border-2 border-pixel-border">
+          <div className="flex flex-col items-center justify-center border-r-2 border-pixel-border pr-2">
+            <span className="font-pixel text-[9px] uppercase text-pixel-textMuted tracking-wider">TIME_SLOWING</span>
+            <span className="font-pixel text-lg mt-1" style={{ color: visualParams.color }}>
               {Math.round(smoothedScore * 100)}%
             </span>
+            <span className="text-[10px] text-pixel-textMuted font-mono">
+              {renderPixelMeter(smoothedScore, 8)}
+            </span>
           </div>
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-[10px] uppercase font-bold text-slytherin-silver tracking-wider">Confidence</span>
-            <span className="text-xl font-bold font-mono text-slytherin-silverLight">
-              {confidence === 0 ? '—' : `${Math.round(confidence * 100)}%`}
+
+          <div className="flex flex-col items-center justify-center pl-2">
+            <span className="font-pixel text-[9px] uppercase text-pixel-textMuted tracking-wider">CONFIDENCE</span>
+            <span className="font-pixel text-lg mt-1 text-pixel-textBright">
+              {confidence === 0 ? '--' : `${Math.round(confidence * 100)}%`}
+            </span>
+            <span className="text-[10px] text-pixel-textMuted font-mono">
+              {renderPixelMeter(confidence, 8)}
             </span>
           </div>
         </div>
 
-        {/* Primary Start / Stop Button */}
+        {/* Primary Retro Action Button */}
         <div className="w-full pt-1">
           <button
             onClick={handleToggle}
-            className={`w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-xl font-serif tracking-wider ${
+            className={`w-full py-3.5 text-xs font-pixel tracking-widest flex items-center justify-center gap-2.5 transition-all ${
               isListening
-                ? 'bg-rose-950/70 text-rose-300 border border-rose-500/50 hover:bg-rose-900/80 animate-pulse'
-                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 hover:scale-[1.01] border border-emerald-400/40'
+                ? 'pixel-btn-danger animate-pulse'
+                : 'pixel-btn-primary'
             }`}
           >
             {isListening ? (
               <>
-                <MicOff className="w-5 h-5" />
-                <span>Stop Session & Reflect</span>
+                <MicOff className="w-4 h-4" />
+                <span>[■] PAUSE SENSING &amp; REFLECT</span>
               </>
             ) : (
               <>
-                <Mic className="w-5 h-5" />
-                <span>Start Listening to Conversation</span>
+                <Mic className="w-4 h-4" />
+                <span>[■] START CONVERSATION STREAM (SPACE)</span>
               </>
             )}
           </button>
         </div>
-
-        {errorMessage && (
-          <p className="text-xs text-rose-400 mt-3 text-center">{errorMessage}</p>
-        )}
       </div>
 
-      {/* Privacy Footer */}
-      <div className="flex items-center gap-1.5 text-xs text-slytherin-silver/80">
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-        <span>Volatile memory audio analysis • Slytherin House Privacy Protocol</span>
+      {/* Terminal Lore Footer */}
+      <div className="flex items-center gap-2 text-[11px] text-pixel-textMuted">
+        <Terminal className="w-3.5 h-3.5 text-pixel-emeraldBright" />
+        <span>SLUGHORN_PROTOCOL // ZERO-RETENTION VOLATILE MEMORY DSP</span>
       </div>
     </div>
   );

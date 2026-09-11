@@ -4,71 +4,144 @@
 
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #040906;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(4, 71, 28, 0.25) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(13, 40, 24, 0.3) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, rgba(8, 18, 12, 0.9) 0px, transparent 100%);
-    color: #E8ECE9;
+    font-family: 'Space Mono', monospace, Courier New, monospace;
+    background-color: #050709;
+    color: #D0D7DA;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
     overflow-x: hidden;
   }
 
-  h1, h2, h3, .font-serif-magic {
-    font-family: 'Cinzel', serif;
+  /* Standalone 100% True Native Transparent Widget Mode */
+  html.widget-mode,
+  body.widget-mode,
+  body.widget-mode #root,
+  body.widget-mode #root > div {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 140px !important;
+    height: 200px !important;
+    overflow: hidden !important;
+    user-select: none !important;
   }
 }
 
-.glass-panel {
-  background: rgba(8, 18, 12, 0.85);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(200, 209, 204, 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(200, 209, 204, 0.15);
+/* Custom Pixel Art Design System Utilities */
+.pixel-panel {
+  background-color: #0E1216;
+  border: 2px solid #2A343C;
+  box-shadow: 3px 3px 0px #000000;
 }
 
-.glass-panel-subtle {
-  background: rgba(8, 18, 12, 0.65);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(200, 209, 204, 0.08);
+.pixel-panel-subtle {
+  background-color: #171D22;
+  border: 2px solid #2A343C;
+  box-shadow: 2px 2px 0px #000000;
 }
 
-.glass-sidebar {
-  background: linear-gradient(180deg, rgba(8, 18, 12, 0.95) 0%, rgba(4, 9, 6, 0.98) 100%);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(200, 209, 204, 0.12);
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+.pixel-sidebar {
+  background-color: #0B0E11;
+  border-right: 2px solid #2A343C;
+  box-shadow: 4px 0px 0px #000000;
 }
 
-.glass-widget {
-  background: radial-gradient(circle at 50% 0%, rgba(13, 34, 25, 0.85) 0%, rgba(4, 9, 6, 0.95) 100%);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(200, 209, 204, 0.18);
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 35px -5px var(--glow-color, rgba(16, 185, 129, 0.25));
+.pixel-btn {
+  background-color: #171D22;
+  border: 2px solid #435360;
+  box-shadow: 3px 3px 0px #000000;
+  color: #D0D7DA;
+  font-family: 'Silkscreen', monospace;
+  transition: all 0.1s ease-in-out;
+  user-select: none;
 }
 
-/* Custom glowing borders & halos */
-.glow-halo {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(50px);
-  pointer-events: none;
-  opacity: 0.4;
-  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+.pixel-btn:hover {
+  background-color: #242E36;
+  color: #F0F4F6;
+  border-color: #E5B869;
 }
 
-/* Slytherin Silver Scrollbar */
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.pixel-btn-primary {
+  background-color: #2E8B57;
+  border: 2px solid #34D399;
+  box-shadow: 3px 3px 0px #000000;
+  color: #050709;
+  font-family: 'Silkscreen', monospace;
+  font-weight: bold;
+}
+
+.pixel-btn-primary:hover {
+  background-color: #34D399;
+  border-color: #E5B869;
+  color: #050709;
+}
+
+.pixel-btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.pixel-btn-gold {
+  background-color: #E5B869;
+  border: 2px solid #FFE082;
+  box-shadow: 3px 3px 0px #000000;
+  color: #050709;
+  font-family: 'Silkscreen', monospace;
+  font-weight: bold;
+}
+
+.pixel-btn-gold:hover {
+  background-color: #F3C77C;
+}
+
+.pixel-btn-gold:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.pixel-btn-danger {
+  background-color: #881337;
+  border: 2px solid #E63946;
+  box-shadow: 3px 3px 0px #000000;
+  color: #FFE4E6;
+  font-family: 'Silkscreen', monospace;
+}
+
+.pixel-btn-danger:hover {
+  background-color: #E63946;
+  color: #FFFFFF;
+}
+
+.pixel-btn-danger:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+}
+
+/* 8-bit Pixel Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(8, 18, 12, 0.6);
+  background: #0E1216;
+  border-left: 2px solid #2A343C;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(132, 147, 138, 0.4);
-  border-radius: 4px;
+  background: #2A343C;
+  border: 1px solid #435360;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(200, 209, 204, 0.7);
+  background: #E5B869;
+  border-color: #FFE082;
 }

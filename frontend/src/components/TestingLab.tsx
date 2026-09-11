@@ -9,7 +9,8 @@ import {
   MessageSquare,
   RotateCcw,
   ChevronRight,
-  UploadCloud
+  UploadCloud,
+  Terminal
 } from 'lucide-react';
 
 interface TestingLabProps {
@@ -21,8 +22,8 @@ interface TestingLabProps {
 
 const PRESET_SCENARIOS: Record<string, { title: string; desc: string; turns: { speaker: string; text: string }[] }> = {
   deep_connection: {
-    title: 'Meaningful & Deep',
-    desc: 'Deep personal reflection, mutual presence',
+    title: 'CARTRIDGE: MEANINGFUL_DEPTH',
+    desc: 'Personal disclosure, reflective listening',
     turns: [
       { speaker: 'Speaker_A', text: "I've been reflecting on what truly makes our work feel meaningful." },
       { speaker: 'Speaker_B', text: "I love that question. In your experience, when do you feel most aligned?" },
@@ -32,7 +33,7 @@ const PRESET_SCENARIOS: Record<string, { title: string; desc: string; turns: { s
     ]
   },
   heated_conflict: {
-    title: 'Heated / Conflict',
+    title: 'CARTRIDGE: HEATED_CONFLICT',
     desc: 'Tension, accusations, frustration',
     turns: [
       { speaker: 'Speaker_A', text: "You completely ruined the project and I hate dealing with this!" },
@@ -42,15 +43,15 @@ const PRESET_SCENARIOS: Record<string, { title: string; desc: string; turns: { s
     ]
   },
   apology_reconcile: {
-    title: 'Apology / Reconcile',
-    desc: 'Repairing conflict with apology',
+    title: 'CARTRIDGE: APOLOGY_REPAIR',
+    desc: 'De-escalation and reconciliation',
     turns: [
       { speaker: 'Speaker_B', text: "I am really sorry, please forgive me, let us calm down." },
       { speaker: 'Speaker_A', text: "Thank you, I appreciate you apologizing. Let's work on this together." }
     ]
   },
   playful_banter: {
-    title: 'Playful Banter',
+    title: 'CARTRIDGE: PLAYFUL_BANTER',
     desc: 'Humor, jokes, positive excitement',
     turns: [
       { speaker: 'Speaker_A', text: "I spent 45 minutes debugging only to realize I commented out main haha!" },
@@ -60,8 +61,8 @@ const PRESET_SCENARIOS: Record<string, { title: string; desc: string; turns: { s
     ]
   },
   one_sided: {
-    title: 'One-Sided Disconnected',
-    desc: 'Monologue and one-word replies',
+    title: 'CARTRIDGE: ONE_SIDED_DULL',
+    desc: 'Monologue and flat one-word replies',
     turns: [
       { speaker: 'Speaker_A', text: "So then I told him that the design system needs a revamp, and then I bought three monitors, and then my cat jumped on the desk..." },
       { speaker: 'Speaker_B', text: "Oh." },
@@ -77,7 +78,7 @@ export const TestingLab: React.FC<TestingLabProps> = ({
   sessionId,
   onOpenFeedback,
 }) => {
-  const [tab, setTab] = useState<'type' | 'paste' | 'presets'>('type');
+  const [tab, setTab] = useState<'type' | 'presets' | 'paste'>('type');
   const [inputText, setInputText] = useState<string>('');
   const [speaker, setSpeaker] = useState<string>('Speaker_A');
   const [pasteText, setPasteText] = useState<string>('');
@@ -145,9 +146,14 @@ export const TestingLab: React.FC<TestingLabProps> = ({
       confidence: 0.0,
       state: 'insufficient_data',
       reason_codes: ['insufficient_data'],
-      explanation: 'Awaiting conversation turns to gauge the atmosphere...',
+      explanation: 'Awaiting dialogue signals to illuminate the hourglass...',
       visual_params: STATE_CONFIGS.insufficient_data,
     });
+  };
+
+  const renderPixelMeter = (val: number, maxBlocks: number = 10) => {
+    const filled = Math.round(val * maxBlocks);
+    return '■'.repeat(filled) + '□'.repeat(maxBlocks - filled);
   };
 
   const state: SimulationState = currentEvaluation?.state || 'neutral';
@@ -155,29 +161,27 @@ export const TestingLab: React.FC<TestingLabProps> = ({
   const smoothedScore = currentEvaluation?.smoothed_overall ?? 0.5;
 
   return (
-    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-in py-1">
-      {/* Left Column: Input Test Controls (7 Cols) */}
+    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 items-start font-mono animate-fade-in py-1">
+      {/* Left Column: Input Test Console (7 Cols) */}
       <div className="lg:col-span-7 space-y-4">
-        {/* Mode Switcher */}
-        <div className="glass-panel p-1 rounded-2xl flex items-center border border-emerald-500/20">
+        {/* Pixel Tab Switcher */}
+        <div className="flex items-center gap-2 p-1.5 bg-pixel-charcoal border-2 border-pixel-border">
           {[
-            { id: 'type', label: '1. Type Turns', icon: MessageSquare },
-            { id: 'presets', label: '2. Quick Scenarios', icon: Sparkles },
-            { id: 'paste', label: '3. Paste Transcript', icon: FileText },
+            { id: 'type', label: '01. TYPE TURNS', icon: MessageSquare },
+            { id: 'presets', label: '02. PRESETS', icon: Sparkles },
+            { id: 'paste', label: '03. PASTE TEXT', icon: FileText },
           ].map((t) => {
-            const Icon = t.icon;
             const active = tab === t.id;
             return (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id as any)}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                className={`flex-1 py-2 px-2 text-[10px] font-pixel transition-all ${
                   active
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                    : 'text-slytherin-silver hover:text-slytherin-silverLight'
+                    ? 'pixel-btn-gold text-pixel-void shadow-pixel-sm'
+                    : 'pixel-btn text-pixel-textMuted hover:text-pixel-textMain'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
                 <span>{t.label}</span>
               </button>
             );
@@ -186,29 +190,29 @@ export const TestingLab: React.FC<TestingLabProps> = ({
 
         {/* Tab 1: Type Turn-by-Turn */}
         {tab === 'type' && (
-          <div className="glass-panel p-5 rounded-3xl border border-emerald-500/20 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="pixel-panel p-5 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b-2 border-pixel-border">
               <div>
-                <h3 className="text-xs font-bold text-slytherin-silverLight uppercase tracking-wider font-serif">
-                  Turn-by-Turn Testing
+                <h3 className="font-pixel text-xs text-pixel-gold tracking-wider">
+                  DIALOGUE_SIMULATOR
                 </h3>
-                <p className="text-xs text-slytherin-silver">Send messages to watch the hourglass shift atmosphere.</p>
+                <p className="text-[11px] text-pixel-textMuted mt-0.5">Input turns to observe dynamic state transitions.</p>
               </div>
 
               <button
                 onClick={handleReset}
-                className="p-1.5 px-3 rounded-xl bg-black/60 text-xs text-slytherin-silver hover:bg-black/80 flex items-center gap-1 border border-emerald-500/20"
+                className="pixel-btn px-2.5 py-1 text-[10px] font-pixel text-pixel-ruby flex items-center gap-1"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Clear</span>
+                <RotateCcw className="w-3 h-3" />
+                <span>CLEAR</span>
               </button>
             </div>
 
             {/* Message Stream */}
             <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
               {turns.length === 0 ? (
-                <div className="text-center py-10 text-slytherin-silver/60 text-xs italic">
-                  Type a message below or select a quick scenario to begin testing.
+                <div className="text-center py-12 text-pixel-textMuted text-xs italic bg-pixel-void border border-pixel-border">
+                  &gt; Terminal idle. Enter dialogue turn below or load a preset.
                 </div>
               ) : (
                 turns.map((t, i) => {
@@ -216,16 +220,16 @@ export const TestingLab: React.FC<TestingLabProps> = ({
                   return (
                     <div
                       key={i}
-                      className={`p-2.5 rounded-2xl text-xs max-w-[85%] animate-fade-in ${
+                      className={`p-3 text-xs border-2 shadow-pixel-sm ${
                         isA
-                          ? 'ml-auto bg-emerald-950/80 border border-emerald-500/30 text-emerald-200'
-                          : 'mr-auto bg-black/70 border border-emerald-500/15 text-slytherin-silverLight'
+                          ? 'bg-pixel-void border-pixel-emerald text-pixel-emeraldBright'
+                          : 'bg-pixel-slate border-pixel-border text-pixel-textMain'
                       }`}
                     >
-                      <span className="text-[10px] font-bold opacity-70 uppercase block mb-0.5 font-serif">
-                        {isA ? 'Speaker A' : 'Speaker B'}
+                      <span className="font-pixel text-[9px] block mb-1 opacity-75">
+                        {isA ? '[ SPEAKER_A ]' : '[ SPEAKER_B ]'}
                       </span>
-                      <p>{t.text}</p>
+                      <p className="font-mono leading-relaxed">{t.text}</p>
                     </div>
                   );
                 })
@@ -233,12 +237,12 @@ export const TestingLab: React.FC<TestingLabProps> = ({
             </div>
 
             {/* Input Bar */}
-            <div className="flex items-center gap-2 pt-2 border-t border-emerald-500/15">
+            <div className="flex items-center gap-2 pt-2 border-t-2 border-pixel-border">
               <button
                 onClick={() => setSpeaker((p) => (p === 'Speaker_A' ? 'Speaker_B' : 'Speaker_A'))}
-                className="px-3 py-2 rounded-xl bg-black/70 text-xs font-bold text-slytherin-silver border border-emerald-500/20 hover:bg-black"
+                className="pixel-btn px-3 py-2 text-[10px] font-pixel text-pixel-gold"
               >
-                {speaker === 'Speaker_A' ? 'Spk A' : 'Spk B'}
+                {speaker === 'Speaker_A' ? 'SPK_A' : 'SPK_B'}
               </button>
               <input
                 type="text"
@@ -246,11 +250,11 @@ export const TestingLab: React.FC<TestingLabProps> = ({
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendTurn()}
                 placeholder="Type next conversation turn..."
-                className="flex-1 rounded-xl bg-black/60 border border-emerald-500/20 px-3.5 py-2 text-xs text-slytherin-silverLight focus:outline-none focus:border-emerald-400 placeholder:text-slytherin-silver/50"
+                className="flex-1 bg-pixel-void border-2 border-pixel-border px-3 py-2 text-xs text-pixel-textMain focus:outline-none focus:border-pixel-gold font-mono"
               />
               <button
                 onClick={() => handleSendTurn()}
-                className="p-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-slate-950 hover:from-emerald-500 hover:to-teal-500 transition-colors shadow-md"
+                className="pixel-btn-primary p-2.5"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -258,26 +262,26 @@ export const TestingLab: React.FC<TestingLabProps> = ({
           </div>
         )}
 
-        {/* Tab 2: Quick Presets */}
+        {/* Tab 2: Preset Cartridges */}
         {tab === 'presets' && (
-          <div className="glass-panel p-5 rounded-3xl border border-emerald-500/20 space-y-3">
-            <h3 className="text-xs font-bold text-slytherin-silverLight uppercase tracking-wider font-serif">
-              Quick Dialogue Scenarios
+          <div className="pixel-panel p-5 space-y-3">
+            <h3 className="font-pixel text-xs text-pixel-gold tracking-wider">
+              SCENARIO_CARTRIDGES
             </h3>
-            <p className="text-xs text-slytherin-silver">Click any preset to inject an instant test conversation into the pipeline.</p>
+            <p className="text-[11px] text-pixel-textMuted">Inject simulated test dialogues directly into the AI pipeline.</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <div className="grid grid-cols-1 gap-2.5 pt-1">
               {Object.entries(PRESET_SCENARIOS).map(([k, p]) => (
                 <button
                   key={k}
                   onClick={() => handleApplyPreset(k)}
-                  className="p-3 rounded-2xl bg-black/60 border border-emerald-500/20 hover:border-emerald-400/50 hover:bg-emerald-950/40 text-left transition-all group"
+                  className="p-3 bg-pixel-void border-2 border-pixel-border hover:border-pixel-gold text-left transition-all group flex items-center justify-between"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slytherin-silverLight group-hover:text-emerald-300 font-serif">{p.title}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slytherin-silver group-hover:text-emerald-400" />
+                  <div>
+                    <span className="font-pixel text-xs text-pixel-textBright group-hover:text-pixel-gold">{p.title}</span>
+                    <p className="text-[11px] text-pixel-textMuted mt-1">{p.desc}</p>
                   </div>
-                  <p className="text-[11px] text-slytherin-silver mt-0.5">{p.desc}</p>
+                  <span className="font-pixel text-[10px] text-pixel-gold opacity-80 group-hover:opacity-100">&gt; RUN</span>
                 </button>
               ))}
             </div>
@@ -286,37 +290,37 @@ export const TestingLab: React.FC<TestingLabProps> = ({
 
         {/* Tab 3: Paste Transcript */}
         {tab === 'paste' && (
-          <div className="glass-panel p-5 rounded-3xl border border-emerald-500/20 space-y-3">
-            <h3 className="text-xs font-bold text-slytherin-silverLight uppercase tracking-wider font-serif">
-              Paste Chat Transcript
+          <div className="pixel-panel p-5 space-y-3">
+            <h3 className="font-pixel text-xs text-pixel-gold tracking-wider">
+              RAW_TRANSCRIPT_PARSER
             </h3>
             <textarea
               value={pasteText}
               onChange={(e) => setPasteText(e.target.value)}
               placeholder={`Alex: I'm really excited about our progress today!\nSam: That's wonderful! What part did you finish?\nAlex: The multimodal AI hourglass simulation.`}
               rows={6}
-              className="w-full rounded-2xl bg-black/60 border border-emerald-500/20 p-3 text-xs text-slytherin-silverLight focus:outline-none focus:border-emerald-400 font-mono leading-relaxed"
+              className="w-full bg-pixel-void border-2 border-pixel-border p-3 text-xs text-pixel-textMain focus:outline-none focus:border-pixel-gold font-mono leading-relaxed"
             />
             <button
               onClick={handlePasteAnalyze}
-              className="w-full py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-600 to-teal-600 text-slate-950 hover:from-emerald-500 hover:to-teal-500 transition-all shadow-md flex items-center justify-center gap-1.5 font-serif"
+              className="pixel-btn-primary w-full py-2.5 text-xs font-pixel flex items-center justify-center gap-2"
             >
               <UploadCloud className="w-4 h-4" />
-              <span>Analyze Transcript</span>
+              <span>PARSE &amp; ANALYZE TRANSCRIPT</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* Right Column: Hourglass Display & 5-Head Scores (5 Cols) */}
+      {/* Right Column: Pixel Hourglass & Segmented 5-Head Gauges (5 Cols) */}
       <div className="lg:col-span-5 space-y-4">
-        {/* Hourglass Card */}
-        <div className="glass-panel p-5 rounded-3xl border border-emerald-500/20 flex flex-col items-center">
-          <div className="w-full flex items-center justify-between mb-1">
-            <span className="text-[11px] uppercase font-bold text-slytherin-silver tracking-wider font-serif">Live Atmosphere</span>
+        {/* Hourglass Reaction Display */}
+        <div className="pixel-panel p-4 flex flex-col items-center">
+          <div className="w-full flex items-center justify-between mb-2 pb-2 border-b-2 border-pixel-border">
+            <span className="font-pixel text-[10px] text-pixel-textMuted">AI_REACTION</span>
             <span
-              className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider font-serif"
-              style={{ backgroundColor: `${visualParams.color}25`, color: visualParams.color }}
+              className="font-pixel text-[10px] px-2 py-0.5 bg-pixel-void border border-pixel-border"
+              style={{ color: visualParams.color }}
             >
               {visualParams.display_name}
             </span>
@@ -327,42 +331,40 @@ export const TestingLab: React.FC<TestingLabProps> = ({
               state={state}
               visualParams={visualParams}
               score={smoothedScore}
-              width={200}
-              height={280}
+              width={160}
+              height={230}
+              interactive={false}
             />
           </div>
 
-          <p className="text-xs text-slytherin-silverLight italic text-center min-h-[36px] flex items-center justify-center px-2">
-            "{currentEvaluation?.explanation || 'Awaiting dialogue signals to illuminate the hourglass...'}"
+          <p className="text-[11px] text-pixel-textMain italic text-center min-h-[34px] flex items-center justify-center px-2 border-t-2 border-pixel-border pt-2">
+            "{currentEvaluation?.explanation || 'Awaiting dialogue signals...'}"
           </p>
         </div>
 
-        {/* 5 Quality Dimensions */}
-        <div className="glass-panel p-4 rounded-3xl border border-emerald-500/20 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slytherin-silverLight uppercase tracking-wider font-serif">5 Quality Heads</span>
-            <button onClick={onOpenFeedback} className="text-[11px] text-slytherin-gold hover:underline font-semibold font-serif">
-              Calibrate
+        {/* 5 Quality Dimension Segmented Meters */}
+        <div className="pixel-panel p-4 space-y-2.5">
+          <div className="flex items-center justify-between pb-1.5 border-b-2 border-pixel-border">
+            <span className="font-pixel text-[10px] text-pixel-gold">QUALITY_HEADS</span>
+            <button onClick={onOpenFeedback} className="font-pixel text-[9px] text-pixel-textMuted hover:text-pixel-gold">
+              [CALIBRATE]
             </button>
           </div>
 
           {[
-            { label: 'Engagement', val: currentEvaluation?.engagement ?? 0.5, color: 'bg-emerald-500' },
-            { label: 'Mutuality', val: currentEvaluation?.mutuality ?? 0.5, color: 'bg-teal-400' },
-            { label: 'Positivity', val: currentEvaluation?.positivity ?? 0.5, color: 'bg-amber-400' },
-            { label: 'Depth', val: currentEvaluation?.depth ?? 0.5, color: 'bg-emerald-300' },
-            { label: 'Flow', val: currentEvaluation?.flow ?? 0.5, color: 'bg-teal-300' },
+            { label: 'ENGAGEMENT', val: currentEvaluation?.engagement ?? 0.5, color: 'text-pixel-emeraldBright' },
+            { label: 'MUTUALITY', val: currentEvaluation?.mutuality ?? 0.5, color: 'text-pixel-emerald' },
+            { label: 'POSITIVITY', val: currentEvaluation?.positivity ?? 0.5, color: 'text-pixel-gold' },
+            { label: 'DEPTH', val: currentEvaluation?.depth ?? 0.5, color: 'text-pixel-amber' },
+            { label: 'FLOW', val: currentEvaluation?.flow ?? 0.5, color: 'text-pixel-silver' },
           ].map((h) => (
-            <div key={h.label} className="space-y-1">
+            <div key={h.label} className="space-y-0.5">
               <div className="flex justify-between text-[10px]">
-                <span className="text-slytherin-silver">{h.label}</span>
-                <span className="font-bold text-slytherin-silverLight">{Math.round(h.val * 100)}%</span>
+                <span className="text-pixel-textMuted font-pixel text-[9px]">{h.label}</span>
+                <span className={`font-mono font-bold ${h.color}`}>{Math.round(h.val * 100)}%</span>
               </div>
-              <div className="w-full h-1 bg-black/80 rounded-full overflow-hidden">
-                <div
-                  className={`h-full ${h.color} transition-all duration-500`}
-                  style={{ width: `${Math.max(4, h.val * 100)}%` }}
-                />
+              <div className="text-[11px] font-mono tracking-wider text-pixel-textMuted">
+                <span className={h.color}>[ {renderPixelMeter(h.val, 16)} ]</span>
               </div>
             </div>
           ))}

@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { MainLiveWidget } from './components/MainLiveWidget';
 import { TestingLab } from './components/TestingLab';
+import { StandaloneWidgetView } from './components/StandaloneWidgetView';
 import { FeedbackModal } from './components/FeedbackModal';
 import { EvaluationResult } from './types';
 import { STATE_CONFIGS } from './simulation/stateMapper';
-import { Hourglass, Mic, FlaskConical, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
+import { Hourglass, Mic, FlaskConical, HeartHandshake, ShieldCheck, Sparkles, ExternalLink, Terminal } from 'lucide-react';
 
 export const App: React.FC = () => {
+  // Check if opened in standalone floating widget mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const isStandaloneMode = urlParams.get('mode') === 'widget' || urlParams.get('standalone') === 'true';
+
+  if (isStandaloneMode) {
+    return <StandaloneWidgetView />;
+  }
+
   const [activeTab, setActiveTab] = useState<'live' | 'lab'>('live');
   const [sessionId, setSessionId] = useState<string>('');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
@@ -21,7 +30,7 @@ export const App: React.FC = () => {
     confidence: 0.0,
     state: 'insufficient_data',
     reason_codes: ['insufficient_data'],
-    explanation: 'A living digital hourglass that slows down when conversation feels meaningful.',
+    explanation: 'Ambient pixel hourglass active // Sensing conversation...',
     visual_params: STATE_CONFIGS.insufficient_data,
   });
 
@@ -30,13 +39,12 @@ export const App: React.FC = () => {
       const res = await fetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input_type: 'live', title: 'Live Hourglass Session' }),
+        body: JSON.stringify({ input_type: 'live', title: 'Pixel Studio Session' }),
       });
       const data = await res.json();
       setSessionId(data.session_id);
       return data.session_id;
     } catch (err) {
-      console.error('Session creation failed:', err);
       const fallbackId = `session_${Date.now()}`;
       setSessionId(fallbackId);
       return fallbackId;
@@ -61,96 +69,121 @@ export const App: React.FC = () => {
           setCurrentEvaluation(msg.evaluation);
         }
       };
-    } catch (err) {
-      // WS skipped in offline/test mode
-    }
+    } catch (err) {}
 
     return () => {
       if (ws) ws.close();
     };
   }, [sessionId]);
 
+  const handlePopOutWidget = () => {
+    const w = 220;
+    const h = 300;
+    const left = window.screen.width - w - 40;
+    const top = 60;
+    window.open(
+      '/?mode=widget',
+      'SlughornPixelHUD',
+      `width=${w},height=${h},top=${top},left=${left},toolbar=no,menubar=no,status=no,resizable=yes`
+    );
+  };
+
   const handleFeedbackSubmitted = (delta: number, calibration: any) => {
-    console.log('Personal feedback calibrated:', delta, calibration);
+    console.log('Feedback calibrated:', delta, calibration);
   };
 
   return (
-    <div className="min-h-screen bg-[#040906] text-slytherin-silverLight flex flex-col md:flex-row selection:bg-emerald-500/30 selection:text-emerald-200">
-      {/* Slytherin Left Sidebar Navigation Pane */}
-      <aside className="w-full md:w-64 lg:w-72 glass-sidebar p-6 flex flex-col justify-between shrink-0 min-h-screen">
-        {/* Brand & Crest Header */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-900/60 to-teal-800/40 border border-emerald-500/40 flex items-center justify-center shadow-lg shadow-emerald-950/60">
-              <Hourglass className="w-6 h-6 text-slytherin-emerald animate-pulse-slow" />
+    <div className="min-h-screen bg-pixel-void text-pixel-textMain flex flex-col md:flex-row font-mono select-none">
+      {/* Retro Pixel-Art Left Sidebar Terminal */}
+      <aside className="w-full md:w-64 lg:w-72 pixel-sidebar p-5 flex flex-col justify-between shrink-0 min-h-screen">
+        {/* Brand & Terminal Crest Header */}
+        <div className="space-y-5">
+          <div className="flex items-center gap-3 pb-3 border-b-2 border-pixel-border">
+            <div className="w-10 h-10 bg-pixel-slate border-2 border-pixel-gold flex items-center justify-center shadow-pixel-sm">
+              <Hourglass className="w-5 h-5 text-pixel-gold" />
             </div>
             <div>
-              <h1 className="font-serif text-base font-bold text-white tracking-wider flex items-center gap-1.5">
-                <span>Slughorn’s</span>
+              <h1 className="font-pixel text-xs font-bold text-pixel-textBright tracking-wider">
+                SLUGHORN_AI
               </h1>
-              <p className="text-[11px] text-slytherin-emerald font-semibold uppercase tracking-widest font-serif">
-                Hourglass AI
+              <p className="font-pixel text-[9px] text-pixel-emeraldBright tracking-widest mt-0.5">
+                v1.0 // PIXEL_LAB
               </p>
             </div>
           </div>
 
-          {/* Left Vertical Menu Items */}
-          <nav className="space-y-2 pt-2">
+          {/* Vertical Mode Switcher */}
+          <nav className="space-y-2 pt-1">
             <button
               onClick={() => setActiveTab('live')}
-              className={`w-full py-3 px-4 rounded-2xl font-serif text-xs font-semibold flex items-center gap-3 transition-all border ${
+              className={`w-full py-2.5 px-3 text-[10px] font-pixel flex items-center gap-2.5 transition-all text-left ${
                 activeTab === 'live'
-                  ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50 shadow-lg shadow-emerald-950/50'
-                  : 'bg-black/40 text-slytherin-silver border-transparent hover:bg-emerald-950/40 hover:text-white'
+                  ? 'pixel-btn-primary shadow-pixel-sm'
+                  : 'pixel-btn text-pixel-textMuted hover:text-pixel-textMain'
               }`}
             >
-              <Mic className="w-4 h-4 text-emerald-400" />
-              <span>Living Hourglass</span>
+              <Mic className="w-3.5 h-3.5" />
+              <span>01. LIVING_HOURGLASS</span>
             </button>
 
             <button
               onClick={() => setActiveTab('lab')}
-              className={`w-full py-3 px-4 rounded-2xl font-serif text-xs font-semibold flex items-center gap-3 transition-all border ${
+              className={`w-full py-2.5 px-3 text-[10px] font-pixel flex items-center gap-2.5 transition-all text-left ${
                 activeTab === 'lab'
-                  ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50 shadow-lg shadow-emerald-950/50'
-                  : 'bg-black/40 text-slytherin-silver border-transparent hover:bg-emerald-950/40 hover:text-white'
+                  ? 'pixel-btn-gold text-pixel-void shadow-pixel-sm'
+                  : 'pixel-btn text-pixel-textMuted hover:text-pixel-textMain'
               }`}
             >
-              <FlaskConical className="w-4 h-4 text-slytherin-gold" />
-              <span>Testing & Chat Lab</span>
+              <FlaskConical className="w-3.5 h-3.5" />
+              <span>02. TESTING_CONSOLE</span>
+            </button>
+
+            {/* Pop Out Floating Mini HUD Action */}
+            <button
+              onClick={handlePopOutWidget}
+              title="Launch floating chrome-free desktop pixel hourglass"
+              className="w-full py-2 px-3 text-[10px] font-pixel flex items-center justify-between text-pixel-gold bg-pixel-void border-2 border-pixel-border hover:border-pixel-gold transition-all mt-1"
+            >
+              <span className="flex items-center gap-2">
+                <ExternalLink className="w-3 h-3 text-pixel-gold" />
+                <span>POPOUT_MINI_HUD</span>
+              </span>
+              <span className="text-[8px] px-1 py-0.2 bg-pixel-slate text-pixel-goldBright border border-pixel-border">
+                POP
+              </span>
             </button>
           </nav>
 
-          {/* House Slytherin / Potion Master Motto */}
-          <div className="p-3.5 rounded-2xl bg-black/50 border border-emerald-500/15">
-            <div className="flex items-center gap-1.5 text-slytherin-gold text-[11px] font-serif font-bold uppercase tracking-wider mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Slughorn's Law</span>
+          {/* Slughorn's Law Retro Lore Box */}
+          <div className="p-3 bg-pixel-void border-2 border-pixel-border space-y-1.5">
+            <div className="flex items-center gap-1.5 text-pixel-gold text-[10px] font-pixel">
+              <Sparkles className="w-3 h-3 text-pixel-gold" />
+              <span>SLUGHORN'S_LAW</span>
             </div>
-            <p className="text-[11px] text-slytherin-silver italic leading-relaxed">
-              "Time slows down when conversations are truly stimulating and genuine."
+            <p className="text-[11px] text-pixel-textMuted italic leading-relaxed">
+              "The sand runs according to the quality of conversation. If it is stimulating, it runs very slowly indeed..."
             </p>
           </div>
         </div>
 
         {/* Sidebar Footer Controls */}
-        <div className="space-y-3 pt-6 border-t border-emerald-500/15">
+        <div className="space-y-3 pt-4 border-t-2 border-pixel-border">
           <button
             onClick={() => setIsFeedbackOpen(true)}
-            className="w-full py-2.5 px-3 rounded-xl bg-emerald-950/60 text-slytherin-gold border border-slytherin-gold/30 hover:bg-emerald-900/60 text-xs font-serif font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+            className="pixel-btn w-full py-2.5 text-[10px] font-pixel text-pixel-gold flex items-center justify-center gap-2"
           >
-            <HeartHandshake className="w-4 h-4" />
-            <span>Reflect on Session</span>
+            <HeartHandshake className="w-3.5 h-3.5" />
+            <span>[ CALIBRATE_SESSION ]</span>
           </button>
 
-          <div className="flex items-center gap-1.5 text-[10px] text-slytherin-silver/70">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>Zero-retention local processing</span>
+          <div className="flex items-center gap-1.5 text-[9px] text-pixel-textMuted font-mono">
+            <Terminal className="w-3 h-3 text-pixel-emeraldBright shrink-0" />
+            <span>LOCAL_MEMORY // ZERO_RETENTION</span>
           </div>
         </div>
       </aside>
 
-      {/* Main Content Pane */}
+      {/* Main Content Terminal Pane */}
       <main className="flex-1 p-4 md:p-8 flex flex-col items-center justify-center min-h-screen overflow-y-auto">
         {activeTab === 'live' ? (
           <MainLiveWidget
